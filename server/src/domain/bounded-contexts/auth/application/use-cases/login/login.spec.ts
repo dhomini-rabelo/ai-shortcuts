@@ -23,7 +23,7 @@ describe('LoginUseCase', () => {
     
     const response = await sut.execute({
       username: user.props.username,
-      password: user.props.password,
+      password: password,
     })
 
     expect(response).toEqual({
