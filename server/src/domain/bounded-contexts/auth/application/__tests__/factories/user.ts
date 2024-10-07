@@ -1,8 +1,8 @@
+import { Factory } from '@tests/types/factory'
 import { some } from '@tests/utils/some'
+
 import { User, UserProps } from '../../../enterprise/entities/user'
 import { UserRepository } from '../../repositories/user'
-import { Factory } from '@tests/types/factory'
-
 
 export function createUserData({
   username = some.text(),

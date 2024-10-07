@@ -1,18 +1,16 @@
-import { UseCase } from "@/domain/core/use-cases/base"
-import { UserRepository } from "../../repositories/user"
-import { InvalidCredentialsError } from "./errors/invalid-credentials"
-import { HashModule } from "@/adapters/hash"
-import { JWTModule } from "@/adapters/jwt/index."
+import { HashModule } from '@/adapters/hash'
+import { JWTModule } from '@/adapters/jwt/index.'
+import { UseCase } from '@/domain/core/use-cases/base'
 
+import { UserRepository } from '../../repositories/user'
+import { InvalidCredentialsError } from './errors/invalid-credentials'
 
 interface Payload {
   username: string
   password: string
 }
 
-
 export class LoginUseCase implements UseCase {
-
   constructor(
     private readonly userRepository: UserRepository,
     private readonly hashModule: HashModule,
@@ -20,16 +18,16 @@ export class LoginUseCase implements UseCase {
   ) {}
 
   async execute(payload: Payload) {
-    const user = await this.userRepository.findUnique({ username: payload.username })
+    const user = await this.userRepository.findUnique({
+      username: payload.username,
+    })
 
-    if (
-      user && this.passwordIsCorrect(payload.password, user.props.password)
-    ) {
+    if (user && this.passwordIsCorrect(payload.password, user.props.password)) {
       return {
-        accessToken: this.jwtModule.generateToken(user.id.toValue())
+        accessToken: this.jwtModule.generateToken(user.id.toValue()),
       }
     }
-    
+
     throw new InvalidCredentialsError()
   }
 

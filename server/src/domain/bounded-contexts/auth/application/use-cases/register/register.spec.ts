@@ -1,9 +1,10 @@
-import { some } from "@tests/utils/some"
-import { RegisterUserUseCase } from "./register"
-import { User } from "../../../enterprise/entities/user"
-import { InMemoryUserRepository } from "../../__tests__/repositories/user"
-import { UserAlreadyExistsError } from "./errors/user-already-exists"
-import { createUserData, UserFactory } from "../../__tests__/factories/user"
+import { some } from '@tests/utils/some'
+
+import { createUserData, UserFactory } from '../../__tests__/factories/user'
+import { InMemoryUserRepository } from '../../__tests__/repositories/user'
+import { User } from '../../../enterprise/entities/user'
+import { UserAlreadyExistsError } from './errors/user-already-exists'
+import { RegisterUserUseCase } from './register'
 
 describe('RegisterUserUseCase', () => {
   const userRepository = new InMemoryUserRepository()
@@ -19,9 +20,7 @@ describe('RegisterUserUseCase', () => {
 
     expect(response).instanceOf(User)
     expect(
-      (
-        await userRepository.get({ id: response.id })  
-      ).isEqual(response),
+      (await userRepository.get({ id: response.id })).isEqual(response),
     ).toBeTruthy()
   })
 

@@ -1,5 +1,5 @@
-import { Entity } from "@/domain/core/entities/base"
-import { ID } from "@/domain/core/entities/id"
+import { Entity } from '@/domain/core/entities/base'
+import { ID } from '@/domain/core/entities/id'
 
 export interface FolderProps {
   name: string
