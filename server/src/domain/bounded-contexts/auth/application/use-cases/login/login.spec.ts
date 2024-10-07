@@ -1,22 +1,24 @@
-import { InMemoryUserRepository } from "../../__tests__/repositories/user"
-import { LoginUseCase } from "./login"
-import { UserFactory } from "../../__tests__/factories/user"
-import { some } from "@tests/utils/some"
-import { InvalidCredentialsError } from "./errors/invalid-credentials"
-import { HashMock } from "@tests/mocks/adapters/hash"
-import { JWTMock } from "@tests/mocks/adapters/jwt"
+import { JsonWebTokenJWTModule } from '@/adapters/jwt/implementations/json-web-token'
+import { HashMock } from '@tests/mocks/adapters/hash'
+import { sleep } from '@tests/utils'
+import { some } from '@tests/utils/some'
+
+import { UserFactory } from '../../__tests__/factories/user'
+import { InMemoryUserRepository } from '../../__tests__/repositories/user'
+import { InvalidCredentialsError } from './errors/invalid-credentials'
+import { LoginUseCase } from './login'
 
 describe('LoginUseCase', () => {
   const JWT_TOKEN_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/
   const userRepository = new InMemoryUserRepository()
   const userFactory = new UserFactory(userRepository)
   const hashModule = new HashMock()
-  const jwtModule = new JWTMock()
-  const sut = new LoginUseCase(
-    userRepository,
-    hashModule,
-    jwtModule,
-  )
+  const expirationTimeInMs = 1000
+  const jwtModule = new JsonWebTokenJWTModule({
+    secretKey: some.text(),
+    expirationTimeInMs,
+  })
+  const sut = new LoginUseCase(userRepository, hashModule, jwtModule)
 
   beforeEach(async () => {
     await userRepository.reset()
@@ -27,10 +29,10 @@ describe('LoginUseCase', () => {
     const user = await userFactory.create({
       password: hashModule.generate(password),
     })
-    
+
     const response = await sut.execute({
       username: user.props.username,
-      password: password,
+      password,
     })
 
     expect(response).toEqual({
@@ -39,27 +41,50 @@ describe('LoginUseCase', () => {
     expect(JWT_TOKEN_REGEX.test(response.accessToken)).toBeTruthy()
   })
 
-  it('should guarantee that accessToken is generated with the user id', async () => {
+  it('should guarantee that generated accessToken is valid', async () => {
     const password = some.text()
     const user = await userFactory.create({
       password: hashModule.generate(password),
     })
-    
+
     const response = await sut.execute({
       username: user.props.username,
-      password: password,
+      password,
     })
 
-    expect(jwtModule.getValueFromToken(response.accessToken)).toEqual(
-      user.id.toValue()
-    )
+    expect(jwtModule.getState(response.accessToken)).toEqual({
+      value: user.id.toValue(),
+      expired: false,
+    })
+  })
+
+  it('should guarantee that accessToken expires after expiration time', async () => {
+    const password = some.text()
+    const user = await userFactory.create({
+      password: hashModule.generate(password),
+    })
+
+    const response = await sut.execute({
+      username: user.props.username,
+      password,
+    })
+
+    await sleep(expirationTimeInMs + 1)
+
+    expect(jwtModule.getState(response.accessToken)).toEqual({
+      value: null,
+      expired: true,
+    })
   })
 
   it('should throw InvalidCredentialsError if the username does not exist', async () => {
     const user = await userFactory.create()
 
     await expect(async () => {
-      await sut.execute({ username: some.text(), password: user.props.password })
+      await sut.execute({
+        username: some.text(),
+        password: user.props.password,
+      })
     }).rejects.toThrowError(InvalidCredentialsError)
   })
 
@@ -67,7 +92,10 @@ describe('LoginUseCase', () => {
     const user = await userFactory.create()
 
     await expect(async () => {
-      await sut.execute({ username: user.props.username, password: some.text() })
+      await sut.execute({
+        username: user.props.username,
+        password: some.text(),
+      })
     }).rejects.toThrowError(InvalidCredentialsError)
   })
 

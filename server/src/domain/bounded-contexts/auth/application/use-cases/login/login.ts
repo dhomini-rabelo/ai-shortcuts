@@ -2,7 +2,7 @@ import { UseCase } from "@/domain/core/use-cases/base"
 import { UserRepository } from "../../repositories/user"
 import { InvalidCredentialsError } from "./errors/invalid-credentials"
 import { HashModule } from "@/adapters/hash"
-import { JWTModule } from "@/adapters/jwt"
+import { JWTModule } from "@/adapters/jwt/index."
 
 
 interface Payload {

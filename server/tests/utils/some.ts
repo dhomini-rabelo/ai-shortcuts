@@ -9,7 +9,7 @@ export const some = {
     const response = randomBytes(Math.ceil(size / 2)).toString('hex')
     return size % 2 === 0 ? response : response.slice(1)
   },
-  integerBetween: generateRandomIntegerNumberBetween,
+  integer: generateRandomIntegerNumberBetween,
   boolean: () => {
     const randomBinaryNumber = generateRandomIntegerNumberBetween(0, 1)
     return randomBinaryNumber === 1
