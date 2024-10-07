@@ -2,6 +2,7 @@ import { UseCase } from "@/domain/core/use-cases/base"
 import { UserRepository } from "../../repositories/user"
 import { InvalidCredentialsError } from "./errors/invalid-credentials"
 import { HashModule } from "@/adapters/hash"
+import { JWTModule } from "@/adapters/jwt"
 
 
 interface Payload {
@@ -15,6 +16,7 @@ export class LoginUseCase implements UseCase {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly hashModule: HashModule,
+    private readonly jwtModule: JWTModule,
   ) {}
 
   async execute(payload: Payload) {
@@ -24,7 +26,7 @@ export class LoginUseCase implements UseCase {
       user && this.passwordIsCorrect(payload.password, user.props.password)
     ) {
       return {
-        accessToken: 'some-access-token',
+        accessToken: this.jwtModule.generateToken(user.id.toValue())
       }
     }
     

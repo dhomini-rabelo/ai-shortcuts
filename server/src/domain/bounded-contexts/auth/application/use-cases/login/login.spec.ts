@@ -4,18 +4,25 @@ import { UserFactory } from "../../__tests__/factories/user"
 import { some } from "@tests/utils/some"
 import { InvalidCredentialsError } from "./errors/invalid-credentials"
 import { HashMock } from "@tests/mocks/adapters/hash"
+import { JWTMock } from "@tests/mocks/adapters/jwt"
 
 describe('LoginUseCase', () => {
+  const JWT_TOKEN_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/
   const userRepository = new InMemoryUserRepository()
   const userFactory = new UserFactory(userRepository)
   const hashModule = new HashMock()
-  const sut = new LoginUseCase(userRepository, hashModule)
+  const jwtModule = new JWTMock()
+  const sut = new LoginUseCase(
+    userRepository,
+    hashModule,
+    jwtModule,
+  )
 
   beforeEach(async () => {
     await userRepository.reset()
   })
 
-  it('should get the authenticated token', async () => {
+  it('should get the authenticated token with JWT format', async () => {
     const password = some.text()
     const user = await userFactory.create({
       password: hashModule.generate(password),
@@ -29,6 +36,7 @@ describe('LoginUseCase', () => {
     expect(response).toEqual({
       accessToken: expect.any(String),
     })
+    expect(JWT_TOKEN_REGEX.test(response.accessToken)).toBeTruthy()
   })
 
   it('should throw InvalidCredentialsError if the username does not exist', async () => {
