@@ -25,7 +25,7 @@ describe('RegisterUserUseCase', () => {
     ).toBeTruthy()
   })
 
-  it('should throw an error if the user already exists', async () => {
+  it('should throw UserAlreadyExistsError if the username already exists', async () => {
     const username = some.text()
     await userFactory.create({
       username,
