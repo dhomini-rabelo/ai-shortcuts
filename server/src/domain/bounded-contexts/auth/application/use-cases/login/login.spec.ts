@@ -54,4 +54,10 @@ describe('LoginUseCase', () => {
       await sut.execute({ username: user.props.username, password: some.text() })
     }).rejects.toThrowError(InvalidCredentialsError)
   })
+
+  it('should throw InvalidCredentialsError if all payload is incorrect', async () => {
+    await expect(async () => {
+      await sut.execute({ username: some.text(), password: some.text() })
+    }).rejects.toThrowError(InvalidCredentialsError)
+  })
 })
