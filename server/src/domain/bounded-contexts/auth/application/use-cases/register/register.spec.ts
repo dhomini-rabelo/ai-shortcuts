@@ -3,16 +3,19 @@ import { RegisterUserUseCase } from "./register"
 import { User } from "../../../enterprise/entities/user"
 import { InMemoryUserRepository } from "../../__tests__/repositories/user"
 import { UserAlreadyExistsError } from "./errors/user-already-exists"
+import { createUserData, UserFactory } from "../../__tests__/factories/user"
 
 describe('RegisterUserUseCase', () => {
   const userRepository = new InMemoryUserRepository()
+  const userFactory = new UserFactory(userRepository)
   const sut = new RegisterUserUseCase(userRepository)
 
+  beforeEach(async () => {
+    await userRepository.reset()
+  })
+
   it('should create a user', async () => {
-    const response = await sut.execute({
-      username: some.text(),
-      password: some.text(),
-    })
+    const response = await sut.execute(createUserData())
 
     expect(response).instanceOf(User)
     expect(
@@ -24,9 +27,8 @@ describe('RegisterUserUseCase', () => {
 
   it('should throw an error if the user already exists', async () => {
     const username = some.text()
-    await userRepository.create({
+    await userFactory.create({
       username,
-      password: some.text(),
     })
 
     await expect(async () => {
