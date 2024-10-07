@@ -1,5 +1,5 @@
+import { BCryptHashModule } from '@/adapters/hash/implementations/bycript'
 import { JsonWebTokenJWTModule } from '@/adapters/jwt/implementations/json-web-token'
-import { HashMock } from '@tests/mocks/adapters/hash'
 import { sleep } from '@tests/utils'
 import { some } from '@tests/utils/some'
 
@@ -12,7 +12,7 @@ describe('LoginUseCase', () => {
   const JWT_TOKEN_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/
   const userRepository = new InMemoryUserRepository()
   const userFactory = new UserFactory(userRepository)
-  const hashModule = new HashMock()
+  const hashModule = new BCryptHashModule()
   const expirationTimeInMs = 1000
   const jwtModule = new JsonWebTokenJWTModule({
     secretKey: some.text(),

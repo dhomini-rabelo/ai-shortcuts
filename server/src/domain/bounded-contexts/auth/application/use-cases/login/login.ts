@@ -1,4 +1,4 @@
-import { HashModule } from '@/adapters/hash'
+import { HashModule } from '@/adapters/hash/index'
 import { JWTModule } from '@/adapters/jwt/index.'
 import { UseCase } from '@/domain/core/use-cases/base'
 
