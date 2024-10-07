@@ -1,3 +1,4 @@
+import { HashModule } from '@/adapters/hash'
 import { UseCase } from '@/domain/core/use-cases/base'
 
 import { UserRepository } from '../../repositories/user'
@@ -9,7 +10,10 @@ interface Payload {
 }
 
 export class RegisterUserUseCase implements UseCase {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly hashModule: HashModule,
+  ) {}
 
   async execute(payload: Payload) {
     const userWithTheSameUsername = await this.userRepository.findUnique({
@@ -20,6 +24,9 @@ export class RegisterUserUseCase implements UseCase {
       throw new UserAlreadyExistsError()
     }
 
-    return this.userRepository.create(payload)
+    return this.userRepository.create({
+      ...payload,
+      password: this.hashModule.generate(payload.password),
+    })
   }
 }
