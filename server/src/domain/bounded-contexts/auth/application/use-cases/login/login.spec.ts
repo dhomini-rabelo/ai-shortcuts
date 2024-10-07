@@ -39,6 +39,22 @@ describe('LoginUseCase', () => {
     expect(JWT_TOKEN_REGEX.test(response.accessToken)).toBeTruthy()
   })
 
+  it('should guarantee that accessToken is generated with the user id', async () => {
+    const password = some.text()
+    const user = await userFactory.create({
+      password: hashModule.generate(password),
+    })
+    
+    const response = await sut.execute({
+      username: user.props.username,
+      password: password,
+    })
+
+    expect(jwtModule.getValueFromToken(response.accessToken)).toEqual(
+      user.id.toValue()
+    )
+  })
+
   it('should throw InvalidCredentialsError if the username does not exist', async () => {
     const user = await userFactory.create()
 
