@@ -3,10 +3,12 @@ import { LoginUseCase } from "./login"
 import { UserFactory } from "../../__tests__/factories/user"
 import { some } from "@tests/utils/some"
 import { InvalidCredentialsError } from "./errors/invalid-credentials"
+import { HashMock } from "@tests/mocks/adapters/hash"
 
-describe('RegisterUserUseCase', () => {
+describe('LoginUseCase', () => {
   const userRepository = new InMemoryUserRepository()
   const userFactory = new UserFactory(userRepository)
+  const hashModule = new HashMock()
   const sut = new LoginUseCase(userRepository)
 
   beforeEach(async () => {
@@ -14,7 +16,10 @@ describe('RegisterUserUseCase', () => {
   })
 
   it('should get the authenticated token', async () => {
-    const user = await userFactory.create()
+    const password = some.text()
+    const user = await userFactory.create({
+      password: hashModule.generate(password),
+    })
     
     const response = await sut.execute({
       username: user.props.username,
