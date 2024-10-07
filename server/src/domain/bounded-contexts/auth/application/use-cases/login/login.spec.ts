@@ -9,7 +9,7 @@ describe('LoginUseCase', () => {
   const userRepository = new InMemoryUserRepository()
   const userFactory = new UserFactory(userRepository)
   const hashModule = new HashMock()
-  const sut = new LoginUseCase(userRepository)
+  const sut = new LoginUseCase(userRepository, hashModule)
 
   beforeEach(async () => {
     await userRepository.reset()
@@ -36,6 +36,14 @@ describe('LoginUseCase', () => {
 
     await expect(async () => {
       await sut.execute({ username: some.text(), password: user.props.password })
+    }).rejects.toThrowError(InvalidCredentialsError)
+  })
+
+  it('should throw InvalidCredentialsError if the password is incorrect', async () => {
+    const user = await userFactory.create()
+
+    await expect(async () => {
+      await sut.execute({ username: user.props.username, password: some.text() })
     }).rejects.toThrowError(InvalidCredentialsError)
   })
 })
