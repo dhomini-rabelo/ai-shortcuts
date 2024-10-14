@@ -19,9 +19,6 @@ export abstract class InMemoryRepository<EntityClass extends Entity>
 
   async update(id: ID, newProps: Partial<EntityClass['props']>) {
     const item = await this.get({ id })
-    console.log({
-      newProps,
-    })
     item.props = {
       ...item.props,
       ...newProps,
