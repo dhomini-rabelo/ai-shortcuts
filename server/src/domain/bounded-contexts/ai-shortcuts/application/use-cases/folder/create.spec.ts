@@ -23,4 +23,17 @@ describe('CreateFolderUseCase', () => {
       (await folderRepository.get({ id: response.id })).isEqual(response),
     ).toBeTruthy()
   })
+
+  it('should create a folder with isPrivate equal to false', async () => {
+    const folderData = {
+      ...createFolderData(),
+      isPrivate: true,
+    }
+    const response = await sut.execute({
+      ...folderData,
+      ownerId: folderData.ownerId.toValue(),
+    })
+
+    expect(response.props.isPrivate).toBeFalsy()
+  })
 })

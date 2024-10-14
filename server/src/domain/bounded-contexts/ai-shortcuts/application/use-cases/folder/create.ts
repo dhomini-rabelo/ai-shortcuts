@@ -6,7 +6,7 @@ import { FolderProps } from '../../../enterprise/entities/folder'
 import { FolderRepository } from '../../repositories/folder'
 
 type Payload = OverWrite<
-  FolderProps,
+  Omit<FolderProps, 'isPrivate'>,
   {
     ownerId: string
   }
@@ -18,6 +18,7 @@ export class CreateFolderUseCase implements UseCase {
   async execute(payload: Payload) {
     return this.folderRepository.create({
       ...payload,
+      isPrivate: false,
       ownerId: new ID(payload.ownerId),
     })
   }
