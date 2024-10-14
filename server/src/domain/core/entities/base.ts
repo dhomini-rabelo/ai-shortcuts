@@ -1,10 +1,10 @@
-import { EmptyRecord } from 'types/simple'
+import { AnyRecord } from '@tests/types/utils'
 
 import { ID } from './id'
 
-export abstract class Entity<Props extends EmptyRecord = any> {
+export abstract class Entity<Props extends AnyRecord = any> {
   private _id: ID
-  public readonly props: Props
+  public props: Props
 
   get id() {
     return this._id

@@ -1,6 +1,6 @@
 import { Repository } from '@/domain/core/adapters/repository'
-import { ResourceNotFoundError } from '@/domain/core/adapters/repository/errors/resource-not-found'
 import { RepeatedResource } from '@/domain/core/adapters/repository/errors/repeated-resource'
+import { ResourceNotFoundError } from '@/domain/core/adapters/repository/errors/resource-not-found'
 import { EntityWithStatic, Entity } from '@/domain/core/entities/base'
 import { ID } from '@/domain/core/entities/id'
 import { WithID } from '@/domain/core/entities/types'
@@ -12,9 +12,21 @@ export abstract class InMemoryRepository<EntityClass extends Entity>
   protected entity: EntityWithStatic<EntityClass>
 
   async create(props: EntityClass['props']) {
-    const newPet = await this.entity.create(props)
-    this.items.push(newPet)
-    return newPet
+    const newItem = await this.entity.create(props)
+    this.items.push(newItem)
+    return newItem
+  }
+
+  async update(id: ID, newProps: Partial<EntityClass['props']>) {
+    const item = await this.get({ id })
+    console.log({
+      newProps,
+    })
+    item.props = {
+      ...item.props,
+      ...newProps,
+    }
+    return item
   }
 
   async get(
